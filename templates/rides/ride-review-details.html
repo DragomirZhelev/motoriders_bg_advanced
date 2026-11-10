@@ -1,0 +1,70 @@
+{% extends 'common/base.html' %}
+{%  load ridereview_tags %}
+{% block content %}
+
+<div class="ride-review-details-container">
+
+    <h1>Ride Review Details</h1>
+
+    <p>
+        <strong>Ride:</strong>
+        {{ ride_review.ride }}
+    </p>
+
+    <p>
+        <strong>Reviewer:</strong>
+        {{ ride_review.reviewer }}
+    </p>
+
+    <p>
+        <strong>Overall Rating:</strong>
+        {{ ride_review.overall_rating}}/10
+        {{ ride_review.overall_rating | overall_rating_color  }}
+    </p>
+
+    <p>
+        <strong>Road Condition Rating:</strong>
+        {{ ride_review.road_condition_rating }}/10
+        {{ ride_review.road_condition_rating | road_condition_rating_color}}
+    </p>
+
+    <p>
+        <strong>Scenery Rating:</strong>
+        {{ ride_review.scenery_rating }}/10
+        {{ ride_review.scenery_rating | scenery_rating_color}}
+    </p>
+
+    <p>
+        <strong>Riding Difficulty:</strong>
+        {{ ride_review.riding_difficulty }}
+    </p>
+
+    <p>
+        <strong>Review:</strong>
+    </p>
+
+    <p>
+        {{ ride_review.review_text }}
+    </p>
+
+    <a href='{% url 'rides:ride-review-edit' ride_review.pk %}'>
+
+        Edit Review
+
+    </a>
+
+    <a href='{% url 'rides:ride-review-delete' ride_review.pk %}'>
+
+        Delete Review
+
+    </a>
+
+    <a href='{% url 'rides:ride-review-list' %}'>
+
+        Back to Reviews
+
+    </a>
+
+</div>
+
+{% endblock %}

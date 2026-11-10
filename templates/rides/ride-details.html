@@ -1,0 +1,121 @@
+{% extends 'common/base.html' %}
+{% load ride_filters %}
+{% block content %}
+
+    <div class="ride-details-container">
+
+        <div class="ride-header">
+            <h1>Ride Title: {{ ride.title }}</h1>
+        </div>
+
+        <div class="ride-general-information">
+
+            <h2>Ride Information</h2>
+
+            <p><strong>Ride Organizer: {{ ride.ride_organizer }}</strong></p>
+
+            <p><strong>Meeting Point:</strong> {{ ride.meeting_point }}</p>
+
+            <p><strong>Destination:</strong> {{ ride.destination }}</p>
+
+            <p><strong>Departure:</strong> {{ ride.departure_date }}</p>
+
+            <p><strong>Estimated Duration:</strong> {{ ride.estimated_duration_hours }} hours</p>
+
+            <p><strong>Distance:</strong> {{ ride.distance }} km</p>
+
+            <p><strong>Road Types:</strong> {{ ride.road_types }}</p>
+
+            <p><strong>Road Difficulty:</strong> {{ ride.road_difficulty }}</p>
+
+            <p><strong>Status:</strong> {{ ride.status | status_of_the_ride_color }}</p>
+
+            <p><strong>Maximum Riders:</strong> {{ ride.maximum_riders_to_join }}</p>
+
+            <p><strong>Current Number of Participants:</strong>
+                {{ ride | count_participants }}
+            </p>
+
+            <p>
+                <strong>Remaining Slots for the Ride:</strong>
+                {{ ride | remaining_slots }}
+            </p>
+
+        </div>
+
+        <div class="ride-description">
+
+            <h2>Description</h2>
+
+            <p>{{ ride.description }}</p>
+
+        </div>
+
+        <div class="ride-participants">
+
+            <h2>Participants</h2>
+
+            {% if ride.participants.all %}
+
+                <ul>
+
+                    {% for participant in ride.participants.all %}
+
+                        <li>
+                            {{ participant.nickname }}
+                            {{ participant.full_name }}
+                            {% if ride.status == 'Planned' %}
+                            <form
+                                    method="post"
+                                    action="{% url 'rides:leave-ride' ride.pk participant.pk %}"
+                                    class="d-inline"
+                            >
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    Leave Ride
+                                </button>
+                            </form>
+                            {% endif %}
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>No participants yet.</p>
+
+            {% endif %}
+
+        </div>
+
+        <div class="ride-actions">
+        {% if ride.status == 'Planned' %}
+            <a href='{% url 'rides:ride-edit' ride.pk %}'>
+                Edit Ride
+            </a>
+        {% endif %}
+            <a href='{% url 'rides:ride-delete' ride.pk %}'>
+                Delete Ride
+            </a>
+
+
+
+            {% if ride.status == 'Planned' and ride.participants.count < ride.maximum_riders_to_join %}
+                <a href='{% url 'rides:join-ride' ride.pk %}'>
+                    Join Ride
+                </a>
+
+                <a href='{% url 'rides:ride-list' %}'>
+                    Back to Rides
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+{% endblock %}
