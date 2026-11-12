@@ -29,6 +29,8 @@ urlpatterns = [
 
     path('rides/', include('rides.urls')),
 
+    path('accounts/', include('accounts.urls')),
+
 ]
 
 
