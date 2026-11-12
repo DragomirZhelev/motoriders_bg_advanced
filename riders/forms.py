@@ -7,8 +7,8 @@ class RiderBaseForm(forms.ModelForm):
     class Meta:
         model = Rider
         fields = (
-            'first_name',
-            'last_name',
+            # 'first_name',
+            # 'last_name',
             'nickname',
             'city',
             'custom_city_or_village',
@@ -17,15 +17,15 @@ class RiderBaseForm(forms.ModelForm):
             'motorcycle_type',
             'experience_years',
             'phone_number',
-            'email',
+            # 'email',
             'motorcyclist_image',
             'short_bio',
 
         )
 
         labels = {
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
+            # 'first_name': 'First Name',
+            # 'last_name': 'Last Name',
             'nickname': 'Nickname',
             'city': 'City',
             'custom_city_or_village': 'Custom City or Village',
@@ -34,14 +34,14 @@ class RiderBaseForm(forms.ModelForm):
             'motorcycle_type': 'Motorcycle Type',
             'experience_years': 'Experience Years',
             'phone_number': 'Phone Number',
-            'email': 'Email Address',
+            # 'email': 'Email Address',
             'motorcyclist_image': 'Profile Photo',
             'short_bio': 'Short Bio',
         }
 
         help_texts = {
-            'first_name': 'Names shall contain only letters',
-            'last_name': 'Names shall contain only letters',
+            # 'first_name': 'Names shall contain only letters',
+            # 'last_name': 'Names shall contain only letters',
             'nickname': 'Nickname shall be unique and at least 3 characters long',
             'city': 'Select a city',
             'custom_city_or_village': 'Enter name of the city or village in case "Other" is selected from above',
@@ -50,14 +50,14 @@ class RiderBaseForm(forms.ModelForm):
             'motorcycle_type': 'Select the motorcycle type for your machine',
             'experience_years': 'Provide the number of experience years you have riding a motorcycle',
             'phone_number': 'Phone numbers shall contain only digits',
-            'email': 'Email is optional',
+            # 'email': 'Email is optional',
             'motorcyclist_image': 'Upload a profile photo',
             'short_bio': 'Provide a short bio if you want - maximum 500 characters',
         }
 
         widgets = {
-            'first_name': forms.TextInput(attrs={'placeholder': 'enter your first name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'enter your last name'}),
+            # 'first_name': forms.TextInput(attrs={'placeholder': 'enter your first name'}),
+            # 'last_name': forms.TextInput(attrs={'placeholder': 'enter your last name'}),
             'nickname': forms.TextInput(attrs={'placeholder': 'enter your nickname'}),
             'city': forms.Select(),
             'custom_city_or_village': forms.TextInput(attrs={'placeholder': 'enter city or village name'}),
@@ -66,16 +66,16 @@ class RiderBaseForm(forms.ModelForm):
             'motorcycle_type': forms.Select(),
             'experience_years': forms.NumberInput(attrs={'min': 0}),
             'phone_number': forms.TextInput(attrs={'placeholder': 'enter your phone number'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'enter your email address'}),
+            # 'email': forms.EmailInput(attrs={'placeholder': 'enter your email address'}),
             'short_bio': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Tell others about yourself....'}),
         }
 
 
         error_messages = {
-            'first_name': {'required': 'Please, provide your first name',
-                           'max_length': 'First name can not be more than 50 characters'},
-            'last_name': {'required': 'Please, provide your last name',
-                          'max_length': 'Last name can not be more than 50 characters'},
+            # 'first_name': {'required': 'Please, provide your first name',
+            #                'max_length': 'First name can not be more than 50 characters'},
+            # 'last_name': {'required': 'Please, provide your last name',
+            #               'max_length': 'Last name can not be more than 50 characters'},
 
             'nickname': {'required': 'Please, provide your nickname',
                          'max_length': 'Nickname can not be more than 50 characters',
@@ -100,7 +100,7 @@ class RiderBaseForm(forms.ModelForm):
             'phone_number': {'required': 'Please, provide your phone number',
                              'invalid': 'Phone number must contain only digits',},
 
-            'email': {'invalid': 'Please, provide a valid email address',},
+            # 'email': {'invalid': 'Please, provide a valid email address',},
 
             'motorcyclist_image': {'invalid': 'Please, provide a valid motorcyclist image file',},
 
