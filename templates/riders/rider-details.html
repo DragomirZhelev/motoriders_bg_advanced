@@ -6,13 +6,13 @@
 
         <div class="rider-header">
             <h1>Nickname: {{ rider.nickname }}</h1>
-            <h2>Fullname: {{ rider.full_name }}</h2>
+            <h2>Fullname: {{ rider.user }}</h2>
         </div>
 
         <div class="rider-image-section">
             <p><strong>Photo</strong></p>
             {% if rider.motorcyclist_image %}
-                <img src="{{ rider.motorcyclist_image.url }}" alt="{{ rider.full_name }}" width="250">
+                <img src="{{ rider.motorcyclist_image.url }}" alt="{{ rider.user }}" width="250">
             {% else %}
                 <p>No profile photo available.</p>
             {% endif %}
@@ -46,8 +46,8 @@
 
             <p><strong>Phone:</strong> {{ rider.phone_number }}</p>
 
-            {% if rider.email %}
-                <p><strong>Email:</strong> {{ rider.email | lower }}</p>
+            {% if rider.user.email %}
+                <p><strong>Email:</strong> {{ rider.user.email | lower }}</p>
             {% endif %}
         </div>
 
@@ -85,6 +85,7 @@
         </div>
 
         <div class="rider-actions">
+        {% if user.is_authenticated and rider.user == user %}
             <a href="{% url 'riders:rider-edit' rider.pk %}">
                 Edit Rider
             </a>
@@ -92,7 +93,7 @@
             <a href="{% url 'riders:rider-delete' rider.pk %}">
                 Delete Rider
             </a>
-
+        {% endif %}
             <a href="{% url 'riders:rider-list' %}">
                 Back to Riders
             </a>

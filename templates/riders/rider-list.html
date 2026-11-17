@@ -5,11 +5,15 @@
 
 
     <h1>All Riders</h1>
+    {% if user.is_authenticated %}
+        {% if not user.rider %}
     <p>
         <button type="button" class="btn btn-success" onclick="location.href='{% url 'riders:rider-create' %}'">
             Create a New Rider
         </button>
     </p>
+        {% endif %}
+    {% endif %}
     <form method="get" class="mb-4">
 
         <div class="row g-2">
