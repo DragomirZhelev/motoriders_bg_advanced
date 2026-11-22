@@ -1,5 +1,6 @@
 {% extends 'common/base.html' %}
 {% load ride_filters %}
+
 {% block content %}
 
     <div class="ride-details-container">
@@ -12,7 +13,7 @@
 
             <h2>Ride Information</h2>
 
-            <p><strong>Ride Organizer: {{ ride.ride_organizer }}</strong></p>
+            <p><strong>Ride Organizer:</strong> {{ ride.ride_organizer }}</p>
 
             <p><strong>Meeting Point:</strong> {{ ride.meeting_point }}</p>
 
@@ -20,7 +21,10 @@
 
             <p><strong>Departure:</strong> {{ ride.departure_date }}</p>
 
-            <p><strong>Estimated Duration:</strong> {{ ride.estimated_duration_hours }} hours</p>
+            <p>
+                <strong>Estimated Duration:</strong>
+                {{ ride.estimated_duration_hours }} hours
+            </p>
 
             <p><strong>Distance:</strong> {{ ride.distance }} km</p>
 
@@ -28,20 +32,28 @@
 
             <p><strong>Road Difficulty:</strong> {{ ride.road_difficulty }}</p>
 
-            <p><strong>Status:</strong> {{ ride.status | status_of_the_ride_color }}</p>
+            <p>
+                <strong>Status:</strong>
+                {{ ride.status|status_of_the_ride_color }}
+            </p>
 
-            <p><strong>Maximum Riders:</strong> {{ ride.maximum_riders_to_join }}</p>
+            <p>
+                <strong>Maximum Riders:</strong>
+                {{ ride.maximum_riders_to_join }}
+            </p>
 
-            <p><strong>Current Number of Participants:</strong>
-                {{ ride | count_participants }}
+            <p>
+                <strong>Current Number of Participants:</strong>
+                {{ ride|count_participants }}
             </p>
 
             <p>
                 <strong>Remaining Slots for the Ride:</strong>
-                {{ ride | remaining_slots }}
+                {{ ride|remaining_slots }}
             </p>
 
         </div>
+
 
         <div class="ride-description">
 
@@ -50,6 +62,7 @@
             <p>{{ ride.description }}</p>
 
         </div>
+
 
         <div class="ride-participants">
 
@@ -63,20 +76,7 @@
 
                         <li>
                             {{ participant.nickname }}
-                            {{ participant.full_name }}
-                            {% if ride.status == 'Planned' %}
-                            <form
-                                    method="post"
-                                    action="{% url 'rides:leave-ride' ride.pk participant.pk %}"
-                                    class="d-inline"
-                            >
-                                {% csrf_token %}
-
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    Leave Ride
-                                </button>
-                            </form>
-                            {% endif %}
+                            {{ participant.user }}
                         </li>
 
                     {% endfor %}
@@ -91,28 +91,71 @@
 
         </div>
 
+
         <div class="ride-actions">
-        {% if ride.status == 'Planned' %}
-            <a href='{% url 'rides:ride-edit' ride.pk %}'>
-                Edit Ride
-            </a>
-        {% endif %}
-            <a href='{% url 'rides:ride-delete' ride.pk %}'>
-                Delete Ride
-            </a>
 
+            {% if is_organizer %}
 
+                {% if ride.status == 'Planned' %}
 
-            {% if ride.status == 'Planned' and ride.participants.count < ride.maximum_riders_to_join %}
-                <a href='{% url 'rides:join-ride' ride.pk %}'>
-                    Join Ride
-                </a>
+                    <a href="{% url 'rides:ride-edit' ride.pk %}">
+                        Edit Ride
+                    </a>
 
-                <a href='{% url 'rides:ride-list' %}'>
-                    Back to Rides
+                {% endif %}
+
+                <a href="{% url 'rides:ride-delete' ride.pk %}">
+                    Delete Ride
                 </a>
 
             {% endif %}
+
+
+            {% if user.is_authenticated %}
+
+                {% if current_rider %}
+
+                    {% if ride.status == 'Planned' %}
+
+                        {% if is_participant %}
+
+                            <form
+                                method="post"
+                                action="{% url 'rides:leave-ride' ride.pk %}"
+                                class="d-inline"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-outline-danger btn-sm"
+                                >
+                                    Leave Ride
+                                </button>
+                            </form>
+
+                        {% elif not is_organizer %}
+
+                            {% if ride.participants.count < ride.maximum_riders_to_join %}
+
+                                <a href="{% url 'rides:join-ride' ride.pk %}">
+                                    Join Ride
+                                </a>
+
+                            {% endif %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endif %}
+
+            {% endif %}
+
+
+            <a href="{% url 'rides:ride-list' %}">
+                Back to Rides
+            </a>
 
         </div>
 

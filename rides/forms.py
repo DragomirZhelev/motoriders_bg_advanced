@@ -14,7 +14,7 @@ class RideBaseForm(forms.ModelForm):
         model = Ride
         fields = (
             'title',
-            'ride_organizer',
+            # 'ride_organizer',
             'meeting_point',
             'city',
             'custom_city_or_village',
@@ -31,7 +31,7 @@ class RideBaseForm(forms.ModelForm):
 
         labels = {
             'title': 'Ride Title',
-            'ride_organizer': 'Ride Organizer',
+            # 'ride_organizer': 'Ride Organizer',
             'meeting_point': 'Meeting Point',
             'city': 'City',
             'custom_city_or_village': 'Custom City or Village',
@@ -48,7 +48,7 @@ class RideBaseForm(forms.ModelForm):
 
         help_texts = {
             'title': 'Provide a title of the ride, at least 5 characters',
-            'ride_organizer': 'Name/nickname of the ride organizer',
+            # 'ride_organizer': 'Name/nickname of the ride organizer',
             'meeting_point': 'Provide meeting point (address), at least 5 characters',
             'city': 'Provide name of the city or village where the ride starts',
             'custom_city_or_village': 'Provide name of the city or village where ride starts, required only if you have selected Other in the field above',
@@ -65,7 +65,7 @@ class RideBaseForm(forms.ModelForm):
 
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Provide a title for the ride'}),
-            'ride_organizer': forms.Select(),
+            # 'ride_organizer': forms.Select(),
             'meeting_point': forms.TextInput(attrs={'placeholder': 'Provide meeting point - address'}),
             'city': forms.Select(),
             'custom_city_or_village': forms.TextInput(attrs={'placeholder': 'Provide name of the city or village'}),
@@ -88,8 +88,8 @@ class RideBaseForm(forms.ModelForm):
         error_messages = {
             'title': {'required': 'Please, provide a title for the ride',
                       'max_length': 'Title of the ride can not be more than 200 characters.'},
-            'ride_organizer': {'required': 'Please, select the ride organizer',
-                               'invalid_choice': 'Please, select a valid rider as organizer'},
+            # 'ride_organizer': {'required': 'Please, select the ride organizer',
+            #                    'invalid_choice': 'Please, select a valid rider as organizer'},
             'meeting_point': {'required': 'Please, provide the meeting point',
                               'max_length': 'Meeting point can not be more than 50 characters.'},
             'city': {'required': 'Please, select the name of the city or village',
@@ -180,7 +180,7 @@ class RideCreateForm(RideBaseForm):
 class RideEditForm(RideBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['ride_organizer'].disabled = True
+        # self.fields['ride_organizer'].disabled = True
         self.fields['maximum_riders_to_join'].disabled = True
 
     def clean(self):
@@ -188,7 +188,7 @@ class RideEditForm(RideBaseForm):
         status = cleaned_data.get('status')
         departure_date = cleaned_data.get('departure_date')
         if status and departure_date:
-            if status == "Completed" and departure_date > timezone.now():
+            if status == choices.TripStatusChoices.COMPLETED and departure_date > timezone.now():
                 self.add_error('status', 'You can not set a Ride to Completed if the departure date is in the future. Use status Cancelled if needed.')
         return cleaned_data
 
@@ -207,7 +207,7 @@ class RideReviewBaseForm(forms.ModelForm):
 
         fields = [
             'ride',
-            'reviewer',
+            # 'reviewer',
             'overall_rating',
             'road_condition_rating',
             'scenery_rating',
@@ -217,7 +217,7 @@ class RideReviewBaseForm(forms.ModelForm):
 
         labels = {
             'ride': 'Ride',
-            'reviewer': 'Reviewer',
+            # 'reviewer': 'Reviewer',
             'overall_rating': 'Overall Rating',
             'road_condition_rating': 'Road Condition Rating',
             'scenery_rating': 'Scenery Rating',
@@ -227,7 +227,7 @@ class RideReviewBaseForm(forms.ModelForm):
 
         help_texts = {
             'ride': 'Select the Ride to provide review for',
-            'reviewer': 'Select rider providing the review',
+            # 'reviewer': 'Select rider providing the review',
             'overall_rating': 'Provide a rate for the ride from 1 to 10',
             'road_condition_rating': 'Provide a rate for the road conditions from 1 to 10',
             'scenery_rating': 'Provide a rate for the scenery from 1 to 10',
@@ -238,7 +238,7 @@ class RideReviewBaseForm(forms.ModelForm):
 
         widgets = {
             'ride': forms.Select(),
-            'reviewer': forms.Select(),
+            # 'reviewer': forms.Select(),
             'overall_rating': forms.NumberInput(attrs={'min': 1, 'max': 10}),
             'road_condition_rating': forms.NumberInput(attrs={'min': 1, 'max': 10}),
             'scenery_rating': forms.NumberInput(attrs={'min': 1, 'max': 10}),
@@ -249,8 +249,8 @@ class RideReviewBaseForm(forms.ModelForm):
         error_messages = {
             'ride': {'required': 'Please, select the ride you want to provide a review for.',
                      'invalid_choice': 'Please, select a valid ride you want to provide a review for.'},
-            'reviewer': {'required': 'Please, select the rider providing the review.',
-                        'invalid_choice':'Please, select a valid rider providing the review.'},
+            # 'reviewer': {'required': 'Please, select the rider providing the review.',
+            #             'invalid_choice':'Please, select a valid rider providing the review.'},
             'overall_rating': {'required': 'Please, provide an overall rating from 1 to 10',
                                'invalid': 'Overall rating shall contain valid number between 1 and 10.'},
             'road_condition_rating': {'required': 'Please, provide a rate for the road conditions from 1 to 10',
@@ -273,19 +273,19 @@ class RideReviewBaseForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        reviewer = cleaned_data.get('reviewer')
+        # reviewer = cleaned_data.get('reviewer')
         ride = cleaned_data.get('ride')
 
-        if reviewer and ride:
-
+        # if reviewer and ride:
+        if ride:
             if ride.status != choices.TripStatusChoices.COMPLETED:
                 raise forms.ValidationError('Reviews shall be submitted for rides with status COMPLETED only')
 
-            organizer = ride.ride_organizer
-            participants = ride.participants.all()
-
-            if reviewer not in participants and reviewer != organizer:
-                raise forms.ValidationError('Only the organizer of the ride or the participants can submit a review')
+            # organizer = ride.ride_organizer
+            # participants = ride.participants.all()
+            #
+            # if reviewer not in participants and reviewer != organizer:
+            #     raise forms.ValidationError('Only the organizer of the ride or the participants can submit a review')
 
         return cleaned_data
 
@@ -308,12 +308,13 @@ class RideReviewDeleteForm(RideReviewBaseForm):
 
 
 class JoinRideForm(forms.Form):
-    rider = forms.ModelChoiceField(
-        queryset=Rider.objects.all(),
-        label='Rider',
-        help_text='Select the rider to join the ride',
-        widget=forms.Select(),
-        error_messages={'required': 'Please, select the rider to join the ride.',
-                        'invalid_choice': 'Please, select a valid rider to join the ride.'},
-    )
+    # rider = forms.ModelChoiceField(
+    #     queryset=Rider.objects.all(),
+    #     label='Rider',
+    #     help_text='Select the rider to join the ride',
+    #     widget=forms.Select(),
+    #     error_messages={'required': 'Please, select the rider to join the ride.',
+    #                     'invalid_choice': 'Please, select a valid rider to join the ride.'},
+    # )
+    pass
 

@@ -8,7 +8,7 @@ class HelpRequestBaseForm(forms.ModelForm):
         model = HelpRequest
 
         fields = (
-            'rider',
+            # 'rider',
             'title',
             'issue_description',
             'urgency',
@@ -17,7 +17,7 @@ class HelpRequestBaseForm(forms.ModelForm):
         )
 
         labels = {
-            'rider': 'Rider',
+            # 'rider': 'Rider',
             'title': 'Title',
             'issue_description': 'Issue Description',
             'urgency': 'Urgency',
@@ -26,7 +26,7 @@ class HelpRequestBaseForm(forms.ModelForm):
         }
 
         help_texts = {
-            'rider': 'Select the rider that requests assistance',
+            # 'rider': 'Select the rider that requests assistance',
             'title': 'Provide a short descriptive title of the issue',
             'issue_description': 'Provide an exhaustive description of the issue',
             'urgency': 'Select a level of urgency',
@@ -35,7 +35,7 @@ class HelpRequestBaseForm(forms.ModelForm):
         }
 
         widgets = {
-            'rider': forms.Select(),
+            # 'rider': forms.Select(),
             'title': forms.TextInput(attrs={'placeholder': 'Short title of the issue'}),
             'issue_description': forms.Textarea(attrs={'rows': 5 ,'placeholder': ' Exhaustive description of the issue'}),
             'urgency': forms.Select(),
@@ -44,8 +44,8 @@ class HelpRequestBaseForm(forms.ModelForm):
         }
 
         error_messages = {
-            'rider': {'required': 'Please, select the rider that needs help',
-                      'invalid_choice': 'Please, select a valid rider'},
+            # 'rider': {'required': 'Please, select the rider that needs help',
+            #           'invalid_choice': 'Please, select a valid rider'},
             'title': {'required': 'Please, provide descriptive title of the issue',
                       'max_length': 'Title of the issue must be less than 100 characters'},
             'issue_description': {'required': 'Please, provide description of the issue',

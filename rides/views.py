@@ -1,13 +1,18 @@
+from django.db import models
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from common import choices
 from riders.models import Rider
 # Create your views here.
 from rides.models import Ride, RideReview
 from rides.forms import RideCreateForm, RideEditForm, RideDeleteForm, RideReviewCreateForm, RideReviewEditForm, RideReviewDeleteForm, JoinRideForm
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 
@@ -26,11 +31,11 @@ class RideListView(ListView):
         if search_query:
             queryset = queryset.filter(
                 Q(title__icontains=search_query) |
-                Q(ride_organizer__first_name__icontains=search_query) |
-                Q(ride_organizer__last_name__icontains=search_query) |
+                Q(ride_organizer__user__first_name__icontains=search_query) |
+                Q(ride_organizer__user__last_name__icontains=search_query) |
                 Q(ride_organizer__nickname__icontains=search_query) |
-                Q(participants__first_name__icontains=search_query) |
-                Q(participants__last_name__icontains=search_query) |
+                Q(participants__user__first_name__icontains=search_query) |
+                Q(participants__user__last_name__icontains=search_query) |
                 Q(participants__nickname__icontains=search_query) |
                 Q(meeting_point__icontains=search_query) |
                 Q(destination__icontains=search_query) |
@@ -54,37 +59,98 @@ class RideDetailView(DetailView):
     template_name = 'rides/ride-details.html'
     context_object_name = 'ride'
 
-class RideCreateView(CreateView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        current_rider = None
+        is_organizer = False
+        is_participant = False
+
+        if self.request.user.is_authenticated:
+            current_rider = Rider.objects.filter(user = self.request.user).first()
+
+            if current_rider is not None:
+                ride = self.object
+                ride_organizer = ride.ride_organizer
+                participants = ride.participants.all()
+
+                if ride_organizer == current_rider:
+                    is_organizer = True
+
+                if current_rider in participants:
+                    is_participant = True
+
+        context['current_rider'] = current_rider
+        context['is_organizer'] = is_organizer
+        context['is_participant'] = is_participant
+
+        return context
+
+
+
+
+
+
+class RideCreateView(LoginRequiredMixin, CreateView):
     model = Ride
     form_class = RideCreateForm
     template_name = 'rides/ride-create.html'
     success_url = reverse_lazy('rides:ride-list')
 
-class RideEditView(UpdateView):
+    def form_valid(self, form):
+        rider = Rider.objects.filter(user = self.request.user).first()
+
+        if rider is None:
+            form.add_error(None, 'Rider Profile registration is required to be able to organize a ride')
+            return self.form_invalid(form)
+
+        form.instance.ride_organizer = rider
+
+        return super().form_valid(form)
+
+
+
+
+
+class RideEditView(LoginRequiredMixin, UpdateView):
     model = Ride
     form_class = RideEditForm
     template_name = 'rides/ride-edit.html'
     context_object_name = 'ride'
 
     def get_queryset(self):
-        return Ride.objects.filter(status = 'Planned')
+        queryset = super().get_queryset()
+
+        queryset = Ride.objects.filter(status = 'Planned')
+
+        queryset = queryset.filter(ride_organizer__user = self.request.user)
+
+        return queryset
 
     def get_success_url(self):
         return reverse_lazy('rides:ride-details', kwargs={'pk': self.object.pk})
 
 
 
-class RideDeleteView(DeleteView):
+class RideDeleteView(LoginRequiredMixin, DeleteView):
     model = Ride
     template_name = 'rides/ride-delete.html'
     success_url = reverse_lazy('rides:ride-list')
     context_object_name = 'ride'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(ride_organizer__user = self.request.user)
+        return queryset
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = RideDeleteForm(instance=self.object)
 
         return context
+
+
 
 class RideReviewDetailView(DetailView):
     model = RideReview
@@ -106,8 +172,8 @@ class RideReviewListView(ListView):
         if search_query:
             queryset = queryset.filter(
                 Q(ride__title__icontains=search_query) |
-                Q(reviewer__first_name__icontains=search_query) |
-                Q(reviewer__last_name__icontains=search_query) |
+                Q(reviewer__user__first_name__icontains=search_query) |
+                Q(reviewer__user__last_name__icontains=search_query) |
                 Q(reviewer__nickname__icontains=search_query)
             )
 
@@ -115,27 +181,64 @@ class RideReviewListView(ListView):
 
 
 
-class RideReviewCreateView(CreateView):
+class RideReviewCreateView(LoginRequiredMixin, CreateView):
     model = RideReview
     form_class = RideReviewCreateForm
     template_name = 'rides/ride-review-create.html'
     success_url = reverse_lazy('rides:ride-review-list')
 
-class RideReviewEditView(UpdateView):
+    def form_valid(self, form):
+        rider = Rider.objects.filter(user = self.request.user).first()
+
+        if rider is None:
+            form.add_error(None, 'Rider Profile registration is required to be able to submit a review')
+
+            return self.form_invalid(form)
+
+        ride = form.cleaned_data.get('ride')
+        organizer = ride.ride_organizer
+        participants = ride.participants.all()
+
+        if rider != organizer and rider not in participants:
+            form.add_error(None, 'Reviews can be submitted only by ride organizer or participants')
+            return self.form_invalid(form)
+
+        existing_review = RideReview.objects.filter(ride = ride, reviewer = rider).exists()
+        if existing_review:
+            form.add_error(None, 'Review for this ride submitted by you already exists')
+            return self.form_invalid(form)
+
+        form.instance.reviewer = rider
+        return super().form_valid(form)
+
+
+
+class RideReviewEditView( LoginRequiredMixin, UpdateView):
     model = RideReview
     form_class = RideReviewEditForm
     template_name = 'rides/ride-review-edit.html'
     context_object_name = 'ride_review'
 
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(reviewer__user = self.request.user)
+        return queryset
+
     def get_success_url(self):
         return reverse_lazy('rides:ride-review-details', kwargs={'pk': self.object.pk})
 
 
-class RideReviewDeleteView(DeleteView):
+class RideReviewDeleteView(LoginRequiredMixin, DeleteView):
     model = RideReview
     template_name = 'rides/ride-review-delete.html'
     context_object_name = 'ride_review'
     success_url = reverse_lazy('rides:ride-review-list')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(reviewer__user = self.request.user)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -144,16 +247,19 @@ class RideReviewDeleteView(DeleteView):
 
         return context
 
-
+@login_required
 def join_ride(request, pk):
     ride = get_object_or_404(Ride, pk=pk)
+
+    rider = Rider.objects.filter(user = request.user).first()
+
+    if rider is None:
+        return redirect('riders:rider-create')
 
     if request.method == 'POST':
         form = JoinRideForm(request.POST)
         if form.is_valid():
-            rider = form.cleaned_data['rider']
-
-
+            # rider = form.cleaned_data['rider']
             if ride.status != 'Planned':
                 form.add_error(None, 'You can join only Rides in status Planned')
 
@@ -177,15 +283,20 @@ def join_ride(request, pk):
 
     return render(request, 'rides/ride-join.html', context)
 
-
+@login_required
 @require_POST
-def leave_ride(request, pk, rider_pk):
+def leave_ride(request, pk):
     ride = get_object_or_404(Ride, pk=pk)
-    rider = get_object_or_404(Rider, pk=rider_pk)
+    # rider = get_object_or_404(Rider, pk=rider_pk)
+
+    rider = Rider.objects.filter(user = request.user).first()
+
+    if rider is None:
+        return redirect('riders:rider-create')
 
     status_ride = ride.status
 
-    if status_ride == 'Planned':
+    if status_ride == choices.TripStatusChoices.PLANNED:
         if rider in ride.participants.all():
             ride.participants.remove(rider)
 

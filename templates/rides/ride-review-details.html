@@ -1,5 +1,6 @@
 {% extends 'common/base.html' %}
-{%  load ridereview_tags %}
+{% load ridereview_tags %}
+
 {% block content %}
 
 <div class="ride-review-details-container">
@@ -18,20 +19,20 @@
 
     <p>
         <strong>Overall Rating:</strong>
-        {{ ride_review.overall_rating}}/10
-        {{ ride_review.overall_rating | overall_rating_color  }}
+        {{ ride_review.overall_rating }}/10
+        {{ ride_review.overall_rating|overall_rating_color }}
     </p>
 
     <p>
         <strong>Road Condition Rating:</strong>
         {{ ride_review.road_condition_rating }}/10
-        {{ ride_review.road_condition_rating | road_condition_rating_color}}
+        {{ ride_review.road_condition_rating|road_condition_rating_color }}
     </p>
 
     <p>
         <strong>Scenery Rating:</strong>
         {{ ride_review.scenery_rating }}/10
-        {{ ride_review.scenery_rating | scenery_rating_color}}
+        {{ ride_review.scenery_rating|scenery_rating_color }}
     </p>
 
     <p>
@@ -47,22 +48,22 @@
         {{ ride_review.review_text }}
     </p>
 
-    <a href='{% url 'rides:ride-review-edit' ride_review.pk %}'>
 
-        Edit Review
+    {% if user.is_authenticated and ride_review.reviewer.user == user %}
 
-    </a>
+        <a href="{% url 'rides:ride-review-edit' ride_review.pk %}">
+            Edit Review
+        </a>
 
-    <a href='{% url 'rides:ride-review-delete' ride_review.pk %}'>
+        <a href="{% url 'rides:ride-review-delete' ride_review.pk %}">
+            Delete Review
+        </a>
 
-        Delete Review
+    {% endif %}
 
-    </a>
 
-    <a href='{% url 'rides:ride-review-list' %}'>
-
+    <a href="{% url 'rides:ride-review-list' %}">
         Back to Reviews
-
     </a>
 
 </div>

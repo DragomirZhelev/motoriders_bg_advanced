@@ -4,13 +4,19 @@
 
     <div class="ride-list-container">
 
-
         <h1>All Rides</h1>
-        <p>
-            <button type='button' class="btn btn-success" onclick="location.href='{% url 'rides:ride-create' %}'">
-                Create a New Ride
-            </button>
-        </p>
+
+        {% if user.is_authenticated %}
+            <p>
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="location.href='{% url 'rides:ride-create' %}'"
+                >
+                    Create a New Ride
+                </button>
+            </p>
+        {% endif %}
 
         <form method="get" class="mb-4">
 
@@ -19,11 +25,11 @@
                 <div class="col-md-5">
 
                     <input
-                            type="text"
-                            name="search"
-                            class="form-control"
-                            placeholder="Search rides..."
-                            value="{{ request.GET.search|default:'' }}"
+                        type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Search rides..."
+                        value="{{ request.GET.search|default:'' }}"
                     >
 
                 </div>
@@ -31,8 +37,9 @@
                 <div class="col-md-3">
 
                     <select
-                            name="status"
-                            class="form-select">
+                        name="status"
+                        class="form-select"
+                    >
 
                         <option value="">
                             All Statuses
@@ -57,8 +64,9 @@
                 <div class="col-md-2">
 
                     <select
-                            name="sort"
-                            class="form-select">
+                        name="sort"
+                        class="form-select"
+                    >
 
                         <option value="">
                             Default Sorting
@@ -79,11 +87,10 @@
                 <div class="col-md-2">
 
                     <button
-                            type="submit"
-                            class="btn btn-info w-100">
-
+                        type="submit"
+                        class="btn btn-info w-100"
+                    >
                         Search
-
                     </button>
 
                 </div>

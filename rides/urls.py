@@ -29,7 +29,7 @@ urlpatterns = [
 
     path('join/<int:pk>/', views.join_ride, name='join-ride'),
 
-    path('leave/<int:pk>/<int:rider_pk>/', views.leave_ride, name='leave-ride'),
+    path('leave/<int:pk>', views.leave_ride, name='leave-ride'),
 
 
 ]
