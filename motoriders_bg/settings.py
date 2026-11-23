@@ -42,6 +42,7 @@ PROJECT_APPS = [
     'rides',
     'assistance',
     'accounts',
+    'services',
 
 ]
 

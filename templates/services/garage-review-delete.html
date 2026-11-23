@@ -1,0 +1,31 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="garage-review-delete-container">
+
+    <h1>Delete Garage Review</h1>
+
+    <p>
+        Are you sure you want to delete this garage review?
+    </p>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Confirm Delete
+        </button>
+
+    </form>
+
+    <a href="{% url 'services:garage_review_details' garage_review.pk %}">
+        Cancel
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'common/base.html' %}
+{% load garage_filters %}
+
+{% block content %}
+
+<div class="garage-details-container">
+
+    <h1>{{ garage.name }}</h1>
+
+    <p>
+        <strong>Description:</strong>
+        {{ garage.description }}
+    </p>
+
+    <p>
+        <strong>City:</strong>
+        {{ garage.city }}
+    </p>
+
+    <p>
+        <strong>Address:</strong>
+        {{ garage.address }}
+    </p>
+
+    <p>
+        <strong>Phone:</strong>
+        {{ garage.phone_number }}
+    </p>
+
+    {% if garage.email %}
+        <p>
+            <strong>Email:</strong>
+            {{ garage.email }}
+        </p>
+    {% endif %}
+
+
+    <div class="garage-services">
+
+        <h2>Services Offered</h2>
+
+        {% if garage.services.all %}
+
+            <ul>
+
+                {% for service in garage.services.all %}
+
+                    <li>
+                        {{ service.name }}
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>No services listed.</p>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="garage-rating">
+
+        <h2>Garage Rating</h2>
+
+        {% if average_rating %}
+
+            <p class="text-warning fs-4">
+                {{ average_rating|rating_stars }}
+            </p>
+
+            <p>
+                <strong>Average Rating:</strong>
+                {{ average_rating|floatformat:1 }} / 5
+            </p>
+
+        {% else %}
+
+            <p>No ratings yet.</p>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if user.is_authenticated and garage.owner == user %}
+
+        <div class="garage-actions">
+
+            <a href="{% url 'services:garage_edit' garage.pk %}">
+                Edit Garage
+            </a>
+
+            <a href="{% url 'services:garage_delete' garage.pk %}">
+                Delete Garage
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+    <a href="{% url 'services:garage_list' %}">
+        Back to Garages
+    </a>
+
+</div>
+
+{% endblock %}

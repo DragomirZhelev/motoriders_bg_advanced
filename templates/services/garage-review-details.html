@@ -1,0 +1,55 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="garage-review-details-container">
+
+    <h1>Garage Review Details</h1>
+
+    <p>
+        <strong>Garage:</strong>
+        {{ garage_review.garage }}
+    </p>
+
+    <p>
+        <strong>Reviewer:</strong>
+        {{ garage_review.reviewer }}
+    </p>
+
+    <p>
+        <strong>Rating:</strong>
+        {{ garage_review.rating }} / 5
+    </p>
+
+    {% if garage_review.comment %}
+
+        <p>
+            <strong>Review:</strong>
+            {{ garage_review.comment }}
+        </p>
+
+    {% endif %}
+
+    {% if user.is_authenticated and garage_review.reviewer.user == user %}
+
+        <div class="garage-review-actions">
+
+            <a href="{% url 'services:garage_review_edit' garage_review.pk %}">
+                Edit Review
+            </a>
+
+            <a href="{% url 'services:garage_review_delete' garage_review.pk %}">
+                Delete Review
+            </a>
+
+        </div>
+
+    {% endif %}
+
+    <a href="{% url 'services:garage_review_list' %}">
+        Back to Garage Reviews
+    </a>
+
+</div>
+
+{% endblock %}

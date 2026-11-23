@@ -1,0 +1,102 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="garage-review-list-container">
+
+    <h1>Garage Reviews</h1>
+
+    {% if user.is_authenticated %}
+
+        <p>
+            <a
+                href="{% url 'services:garage_review_create' %}"
+                class="btn btn-success"
+            >
+                Create Garage Review
+            </a>
+        </p>
+
+    {% endif %}
+
+    <form method="get" class="mb-4">
+
+        <div class="row g-2">
+
+            <div class="col-md-9">
+
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Search by garage or reviewer"
+                    value="{{ request.GET.search|default:'' }}"
+                >
+
+            </div>
+
+            <div class="col-md-3">
+
+                <button
+                    type="submit"
+                    class="btn btn-info w-100"
+                >
+                    Search
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    {% if garage_reviews %}
+
+        {% for garage_review in garage_reviews %}
+
+            <div class="card bg-dark text-light border-secondary shadow mb-3">
+
+                <div class="card-body">
+
+                    <h2 class="card-title">
+                        {{ garage_review.garage }}
+                    </h2>
+
+                    <p>
+                        <strong>Reviewer:</strong>
+                        {{ garage_review.reviewer }}
+                    </p>
+
+                    <p>
+                        <strong>Rating:</strong>
+                        {{ garage_review.rating }} / 5
+                    </p>
+
+                    {% if garage_review.comment %}
+                        <p>
+                            {{ garage_review.comment }}
+                        </p>
+                    {% endif %}
+
+                    <a
+                        href="{% url 'services:garage_review_details' garage_review.pk %}"
+                        class="btn btn-info"
+                    >
+                        View Details
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No garage reviews available.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
