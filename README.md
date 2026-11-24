@@ -1,312 +1,502 @@
-# MotoRiders BG
 
-MotoRiders BG is a Django web application for motorcycle riders in Bulgaria.
+MotoRiders BG
+MotoRiders BG is a Django web application for motorcycle riders and motorcycle enthusiasts in Bulgaria.
+The platform allows users to register accounts, create Rider profiles, organize and join motorcycle rides, publish Ride Reviews, request roadside assistance, discover motorcycle garages and services, and submit Garage Reviews and ratings.
 
-The application allows riders to create profiles, organize group rides, join and leave planned rides, publish ride reviews, and create roadside assistance requests.
 
-## Features
+Features
+Authentication and User Accounts
 
-### Rider Profiles
+- Custom Django user model based on AbstractUser
+- User registration
+- User login and logout
+- Authentication-aware navigation
+- Private My Profile page for authenticated users
+- Automatic assignment of newly registered users to the Registered Users group
+- Automatic assignment to the Riders group after successful Rider profile creation
+- Group-based permissions
+- Permission checks using PermissionRequiredMixin
+- Permission checks for function-based views using permission_required
+- Owner-restricted editing and deletion
+User Groups
+The application uses two Django Groups with distinct permissions.
+Registered Users
+Newly registered accounts are automatically assigned to this group.
+Registered users can:
 
-- Create, view, edit, and delete rider profiles
-- Search riders by first name, last name, or nickname
-- Store motorcycle brand, model, type, and riding experience
-- Store contact information and an optional short biography
-- Upload an optional profile photo
-- Select a Bulgarian city from a predefined list
-- Provide a custom city or village when `Other` is selected
-- Prevent custom locations from being entered when a standard city is selected
-- Display the number of rides organized by each rider
-- Display the number of reviews submitted by each rider
+- Browse Riders
+- Browse Rides and Ride Reviews
+- Browse Road Assistance requests
+- Browse Garages and Services
+- Browse Garage Reviews
+- Create a Rider profile
+- Create and manage their own Garages
+- Create and manage their own Garage Reviews
+Riders
+When a registered user creates a Rider profile, the account is additionally assigned to the Riders group.
+Riders receive additional permissions to:
 
-### Rides
+- Manage their Rider profile
+- Create and manage Rides
+- Join and leave planned Rides
+- Create and manage Ride Reviews
+- Create and manage Road Assistance requests
+Group permissions determine whether a user may perform a category of operation, while view querysets additionally enforce ownership of individual objects.
 
-- Create, view, and delete rides, edit rides only in status Planned
-- Search rides by:
-  - Ride title
-  - Organizer name or nickname
-  - Participant name or nickname
-  - Meeting point
-  - Destination
-  - Road type
-  - Road difficulty
-  - Description
-- Filter rides by status
-- Sort rides by creation date
-- Store:
-  - Ride organizer
-  - Meeting point
-  - Starting city
-  - Destination
-  - Departure date and time
-  - Estimated duration
-  - Distance
-  - Multiple road types
-  - Road difficulty
-  - Ride status
-  - Maximum participant capacity
-  - Ride description
-- Preserve selected road types when editing a ride
-- Display the current participant count
-- Display the number of remaining participant slots
-- Display ride statuses using custom template filters
-- Allow riders to join planned rides
-- Allow existing participants to leave rides
-- Prevent the ride organizer from joining as a participant
-- Prevent the same rider from joining twice
-- Prevent riders from joining completed or canceled rides
-- Prevent riders from joining a ride when its capacity has been reached
 
-### Ride Reviews
+Rider Profiles
 
-- Create, view, edit, and delete ride reviews
-- Search reviews by ride title or reviewer name
-- Rate:
-  - Overall ride experience
-  - Road conditions
-  - Scenery
-  - Riding difficulty
-- Display rating descriptions using custom template filters
-- Restrict reviews to the ride organizer or existing participants
-- Allow reviews only for rides with Completed Status
-- Enforce one review per rider for each ride through a database constraint
+- Create, view, edit, and delete Rider profiles
+- One Rider profile per registered account
+- Rider ownership is automatically assigned to the authenticated AppUser
+- Search Riders by: 
+- First name
+- Last name
+- Nickname
+- Store: 
+- Nickname
+- City
+- Custom city or village
+- Motorcycle brand
+- Motorcycle model
+- Motorcycle type
+- Riding experience
+- Phone number
+- Optional profile photo
+- Optional biography
+- Select Bulgarian cities from predefined choices
+- Support a custom city or village when Other is selected
+- Display Rider activity information
+- Owner-only Rider editing and deletion
 
-### Road Assistance
 
-- Create, view and delete roadside assistance requests; edit requests only in status Open
-- Record:
-  - Rider requesting assistance
-  - Request title
-  - Issue description
-  - Urgency level
-  - Location
-  - Request status
-- Filter requests by `Open` or `Closed` status
+Rides
 
-## Additional Functionality
+- Create, view, edit, and delete motorcycle Rides
+- Only users with Rider permissions can create Rides
+- Ride organizer is assigned automatically from the authenticated Rider
+- Organizer cannot be selected manually from the form
+- Rides can be edited only while their status is Planned
+- Owner-only Ride editing and deletion
+- Search Rides by: 
+- Title
+- Organizer first name
+- Organizer last name
+- Organizer nickname
+- Participant first name
+- Participant last name
+- Participant nickname
+- Meeting point
+- Destination
+- Road type
+- Road difficulty
+- Description
+- Filter Rides by status
+- Sort Rides by creation date
+- Store: 
+- Organizer
+- Meeting point
+- Starting city
+- Destination
+- Departure date and time
+- Estimated duration
+- Distance
+- Multiple road types
+- Road difficulty
+- Status
+- Maximum participant capacity
+- Description
+- Display current participant count
+- Display remaining participant capacity
+- Custom template filters for Ride status presentation
+Ride Participation
 
-- Create, view, edit and delete functionality for all models with editing restricted by status for rides and help requests
-- Search, filtering, and sorting through GET query parameters
-- Custom form validation
-- Custom model validators
-- Custom error messages
-- Customized labels, help texts, placeholders, and widgets
-- Disabled fields in delete confirmation forms
+- Riders can join planned Rides
+- Riders can leave planned Rides
+- Rider identity is determined from the authenticated account
+- Users cannot select another Rider when joining
+- Organizer cannot join as a participant
+- Duplicate participation is prevented
+- Completed or cancelled Rides cannot be joined
+- Capacity limits are enforced
+- Join and Leave operations are permission-protected
+The Ride-participant relationship is implemented as a Many-to-Many relationship between Ride and Rider.
+
+
+Ride Reviews
+
+- Create, view, edit, and delete Ride Reviews
+- Reviewer is assigned automatically from the authenticated Rider
+- Reviewer cannot be selected manually
+- Search by Ride title or reviewer information
+- Reviews are restricted to: 
+- The Ride organizer
+- Riders who participated in the Ride
+- Reviews are allowed only for Rides with Completed status
+- One Rider can review a particular Ride only once
+- Duplicate Reviews are prevented using a database UniqueConstraint
+- Review authors can edit and delete only their own Reviews
+- Rating fields include: 
+- Overall Ride experience
+- Road conditions
+- Scenery
+- Riding difficulty
+- Custom template filters provide rating descriptions
+
+
+Road Assistance
+
+- Create, view, edit, and delete Road Assistance requests
+- Only Riders can create Help Requests
+- Rider is assigned automatically from the authenticated account
+- Rider cannot be selected manually from the form
+- Requests can be edited only while their status is Open
+- Owner-only editing and deletion
+- Store: 
+- Rider
+- Request title
+- Issue description
+- Urgency
+- Location
+- Status
+- Filter Help Requests by Open or Closed
+
+
+Motorcycle Garages and Services
+The services application provides a directory of motorcycle garages and the Services they offer.
+Service Catalogue
+Service is a database model containing a controlled catalogue of motorcycle workshop Services.
+The initial catalogue is populated automatically using a Django data migration and currently includes Services such as:
+
+- Brake Service
+- Chain and Sprocket Service
+- Clutch Repair and Replacement
+- Cooling System Service
+- Electrical Diagnostics and Repair
+- Engine Diagnostics
+- Engine Repair
+- Fuel System and Injection Service
+- Motorcycle Customization
+- Motorcycle Transport and Recovery
+- Oil and Filter Service
+- Painting and Bodywork
+- Suspension Service
+- Transmission and Gearbox Repair
+- Tyre Service
+Garage owners select existing Services instead of entering arbitrary Service names.
+Garages
+
+- Create, view, edit, and delete Garages
+- Garage owner is automatically assigned from the authenticated AppUser
+- Owner cannot be selected manually
+- Registered users can create Garages
+- Only the Garage owner can edit or delete a Garage
+- Store: 
+- Garage name
+- Owner
+- Description
+- Bulgarian city
+- Address
+- Phone number
+- Email
+- Services offered
+- Garage city uses predefined Bulgarian city choices
+- Search Garages by: 
+- Garage name
+- City
+- Service name
+- A Garage can offer multiple Services
+- The same Service can be offered by multiple Garages
+Garage and Service therefore form the application's second major Many-to-Many relationship.
+
+
+Garage Reviews and Ratings
+
+- Any registered user can submit a Garage Review
+- Reviewer is automatically assigned from the authenticated AppUser
+- Reviewer cannot be selected manually
+- A Garage owner cannot review their own Garage
+- One user can submit only one Review for a particular Garage
+- Duplicate Reviews are prevented with a database UniqueConstraint
+- Review authors can edit and delete only their own Reviews
+- Other users can view Reviews but cannot modify them
+- Ratings use a 1-to-5 scale
+- Garage average rating is calculated dynamically using Django ORM Avg()
+- Average rating is not stored redundantly in the database
+- Average rating is displayed numerically
+- A custom template filter renders visual star ratings
+- Bootstrap styling displays the stars in a highlighted color
+
+
+My Profile
+Authenticated users have access to a private My Profile page.
+The page uses the currently authenticated AppUser and existing reverse model relationships.
+For all registered users it can display:
+
+- Account information
+- Garages owned by the account
+- Garage Reviews submitted by the account
+For accounts with a Rider profile it additionally displays:
+
+- Rider profile information
+- Organized Rides
+- Joined Rides
+- Ride Reviews
+- Road Assistance requests
+No additional database model is required for My Profile.
+
+
+Public and Private Sections
+Anonymous visitors can browse the public application content, including:
+
+- Rider profiles
+- Rides
+- Ride Reviews
+- Road Assistance requests
+- Garages
+- Garage Reviews
+Authentication and permissions are required for actions that modify application data.
+User-interface controls are displayed according to the current user's permissions. Backend permission checks and owner-restricted querysets remain in place even when action buttons are hidden.
+
+
+Forms and Validation
+The project includes extensive Django form customization:
+
+- ModelForms
+- Customized labels
+- Help texts
+- Placeholders
+- Widgets
+- Custom validation messages
+- Field-specific cleaning
+- Cross-field validation with clean()
+- Model-level validators
+- CSRF protection for POST forms
+- Disabled fields on deletion confirmation forms
 - Dedicated delete confirmation pages
+- Multiple-selection widgets for Many-to-Many relationships
+- Server-controlled ownership fields
+Sensitive ownership fields such as Rider owner, Ride organizer, Help Request Rider, Garage owner, and Review author are not exposed as user-selectable form fields.
+
+
+Database Architecture
+The project uses PostgreSQL.
+Main Models
+
+- AppUser
+- Rider
+- Ride
+- RideReview
+- HelpRequest
+- Service
+- Garage
+- GarageReview
+AppUser and Rider form the custom user/profile architecture through a One-to-One relationship.
+Many-to-One Relationships
+Examples include:
+
+- One Rider can organize many Rides
+- One Ride can have many Ride Reviews
+- One Rider can write many Ride Reviews
+- One Rider can create many Help Requests
+- One AppUser can own many Garages
+- One Garage can receive many Garage Reviews
+- One AppUser can write many Garage Reviews
+Many-to-Many Relationships
+Ride Participants
+
+- One Ride can contain multiple Riders
+- One Rider can participate in multiple Rides
+Garage Services
+
+- One Garage can offer multiple Services
+- One Service can be offered by multiple Garages
+
+
+Groups and Permissions
+Required application Groups and permissions are created through Django data migrations.
+Current Groups:
+
+- Registered Users
+- Riders
+The application uses:
+
+- LoginRequiredMixin
+- PermissionRequiredMixin
+- permission_required
+- Group permissions
+- Owner-restricted QuerySets
+Permissions determine whether an account may perform an operation, while ownership filtering determines which specific objects the account may modify.
+
+
+Data Migrations
+The project uses custom Django data migrations for required initial application data.
+These migrations create:
+
+- The initial motorcycle Service catalogue
+- Registered Users Group
+- Riders Group
+- Group permissions
+- Updated Garage Review permissions
+This makes the required initial application configuration reproducible across local, evaluator, and production databases.
+
+
+Templates
+The project uses:
+
+- Shared base template
+- Template inheritance
+- Shared navigation
+- Shared footer
+- Reusable card templates
+- Django built-in template tags and filters
 - Custom template tags
 - Custom template filters
-- Built-in template tags and filters
-- Custom 404 error page
-- Join and leave ride functionality
-- Bootstrap-based responsive design
-- Dark motorcycle-themed user interface
-- Shared navigation and footer across all pages
-- Reusable partial templates for cards, navigation, header, and footer
-- Support for an empty database without fixtures or prepopulated data
+- Custom Garage star-rating filter
+- Custom 404 page
+- Bootstrap 5 styling
+- Dark motorcycle-themed interface
 
-## Technologies
+
+Technologies
 
 - Python
 - Django
-- SQLite
+- PostgreSQL
 - HTML
 - CSS
 - Bootstrap 5
 - Django Template Language
-- Pillow for image uploads
+- Django ORM
+- Pillow
+- python-dotenv
+- psycopg
+Exact dependency versions are available in requirements.txt.
 
-Exact dependency versions are available in `requirements.txt`.
 
-## Project Structure
-
-```text
-motoriders_bg/
-├── motoriders_bg/        # Project settings and root URL configuration
+Project Structure
+motoriders_bg_advanced/
+├── motoriders_bg/        # Project settings and root URLs
+├── accounts/             # Custom AppUser, authentication, Groups and My Profile
 ├── common/               # Shared choices, validators, mixins and home page
 ├── riders/               # Rider profiles
-├── rides/                # Rides, ride reviews and ride participation
-├── assistance/           # Road assistance requests
+├── rides/                # Rides, Ride Reviews and Ride participation
+├── assistance/           # Road Assistance requests
+├── services/             # Service catalogue, Garages and Garage Reviews
 ├── templates/            # Application templates and reusable partials
 ├── media/                # Uploaded files during local development
 ├── manage.py
 ├── requirements.txt
 └── README.md
-```
-
-## Main Models
-
-### Rider
-
-Stores rider profile information, motorcycle details, location, contact information, profile photo, riding experience, and biography.
-
-### Ride
-
-Stores organized motorcycle rides, route information, road types, participant capacity, ride status, and participants.
-
-### RideReview
-
-Stores feedback and ratings submitted by ride organizers or participants.
-
-### HelpRequest
-
-Stores roadside assistance requests created by riders.
-
-## Database Relationships
-
-### Many-to-One Relationships
-
-- Multiple rides can be organized by one rider
-- Multiple reviews can belong to one ride
-- Multiple reviews can be written by one rider
-- Multiple help requests can be created by one rider
-
-### Many-to-Many Relationship
-
-- One ride can have multiple participants
-- One rider can participate in multiple rides
-
-## Installation and Running
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/DragomirZhelev/motoriders_bg
-cd motoriders_bg
-```
 
 
-### 2. Create a virtual environment
-
-```bash
+Installation
+1. Clone the repository
+git clone https://github.com/DragomirZhelev/motoriders_bg_advanced
+cd motoriders_bg_advanced
+2. Create a virtual environment
+On Windows:
+py -m venv .venv
+On systems where python is available globally:
 python -m venv .venv
-```
-
-### 3. Activate the virtual environment
-
-On Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-On Windows Command Prompt:
-
-```cmd
+3. Activate the virtual environment
+Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+Windows Command Prompt:
 .venv\Scripts\activate
-```
-
-On macOS or Linux:
-
-```bash
+macOS/Linux:
 source .venv/bin/activate
-```
-
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Apply database migrations
-
-```bash
+4. Install dependencies
+python -m pip install -r requirements.txt
+5. Configure environment variables
+Create a .env file in the project root.
+The application expects configuration for values including:
+SECRET_KEY
+DB_NAME
+DB_USER
+DB_PASSWORD
+DB_HOST
+DB_PORT
+The real .env file is excluded from version control.
+6. Configure PostgreSQL
+Create a PostgreSQL database and provide its connection information through .env.
+The application is configured to use:
+django.db.backends.postgresql
+7. Apply migrations
 python manage.py migrate
-```
+Migrations create the database structure and required initial application data, including:
 
-### 6. Start the development server
-
-```bash
+- Service catalogue
+- Registered Users Group
+- Riders Group
+- Group permissions
+8. Optional: create a superuser
+python manage.py createsuperuser
+9. Start the development server
 python manage.py runserver
-```
-
-### 7. Open the application
-
-Open the following address in a browser:
-
-```text
+10. Open the application
 http://127.0.0.1:8000/
-```
 
-## Environment Variables and Credentials
 
-No environment variables or external credentials are required to run the project locally with its default configuration.
+Environment Variables and Credentials
+Sensitive values are loaded from environment variables with python-dotenv.
+The .env file is excluded through .gitignore and must not be committed.
+Production and local environments can therefore use different:
 
-The project is configured for local development and uses Django's default development settings.
+- Secret keys
+- Database names
+- Database users
+- Database passwords
+- Database hosts
+- Database ports
+without modifying application source code.
 
-The custom 404 error page is available in the project. To preview it locally, temporarily set DEBUG = False in motoriders_bg/settings.py and set ALLOWED_HOSTS to include 127.0.0.1 and localhost. Restore the development settings after testing.
 
-## Main Pages
+Main Pages
 
-- `/` - Home page
-- `/riders/list/` - Rider profiles
-- `/rides/list/` - Rides
-- `/rides/ride-review/list/` - Ride reviews
-- `/assistance/list/` - Road assistance requests
+- / - Home
+- /accounts/register/ - Registration
+- /accounts/login/ - Login
+- /accounts/my-profile/ - Private My Profile
+- /riders/list/ - Riders
+- /rides/list/ - Rides
+- /rides/ride-review/list/ - Ride Reviews
+- /assistance/list/ - Road Assistance
+- /services/garage/list/ - Garages
+- /services/garage-review/list/ - Garage Reviews
 
-All application objects can be created and managed through the available navigation links. Direct database manipulation and the Django admin panel are not required.
 
-## Empty Database Support
+Security and Ownership
+The application uses several authorization layers:
 
-The application is designed to work with an empty database.
+1. Authentication verifies that the user is logged in.
+2. Group permissions determine whether the user may perform a category of operation.
+3. View querysets restrict access to objects owned by the authenticated user.
+4. Server-side ownership assignment prevents users from selecting another owner/reviewer through forms.
+5. CSRF protection is enabled on POST operations.
+6. Database constraints enforce uniqueness rules such as one Ride Review per Rider/Ride and one Garage Review per user/Garage.
 
-After applying the migrations, the evaluator can create all required objects manually through the user interface in the following order:
 
-1. Create one or more riders
-2. Create a ride and select an existing rider as organizer
-3. Join riders to a planned ride
-4. Create a ride with a departure date and time in the future. To test ride reviews, edit the ride while its status is still **Planned**: change the departure date and time to a past date, then set the status to **Completed**. The edit form prevents completing a ride while its departure date is in the future. Once completed, the ride can no longer be edited.
-5. Create a review for that completed ride, using its organizer or a participant as the reviewer
-6. Create roadside assistance requests
+Current Development Status
+Implemented so far:
 
-The project does not rely on fixtures, custom data migrations, or initialization scripts.
+- Custom authentication
+- Registration/login/logout
+- User Groups and permissions
+- Rider profiles
+- Rides and participation
+- Ride Reviews
+- Road Assistance
+- Service catalogue
+- Garages
+- Garage Reviews
+- Garage average ratings
+- Custom star-rating filter
+- PostgreSQL configuration
+- Environment-variable configuration
+- My Profile account dashboard
+Additional advanced requirements such as REST API endpoints, asynchronous/background processing, automated test coverage, and production deployment are planned as subsequent implementation stages.
 
-## Database and Uploaded Files
 
-The project uses SQLite by default.
-
-Django creates the local `db.sqlite3` file when migrations are applied.
-
-Rider profile photos are stored under:
-
-```text
-media/riders_photos/
-```
-
-The local database and uploaded media files are runtime data and are not included in version control.
-
-## Forms and Validation
-
-The application includes:
-
-- Model forms for all main models
-- A dedicated form for joining rides
-- Model-level validators
-- Field-specific cleaning methods
-- Cross-field validation with form `clean()` methods
-- User-friendly validation messages
-- Customized labels, help texts, placeholders, and widgets
-- Disabled fields on deletion confirmation forms
-- CSRF protection for all POST forms
-
-## Templates
-
-The project uses:
-
-- A shared base template
-- Template inheritance
-- Reusable header, navigation, and footer templates
-- Reusable card templates for all main models
-- Built-in Django template tags and filters
-- Custom template tags and filters
-- A custom 404 error page
-- Bootstrap 5 for layout and visual styling
-
-## Authentication
-
-Authentication and Django User management are intentionally not implemented because they are excluded from the project requirements.
-
-The application does not provide login, logout, registration, or role-based permissions.
-
-## Author
-
+Author
 Dragomir Zhelev

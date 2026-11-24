@@ -1,0 +1,269 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="my-profile-container">
+
+    <h1>My Profile</h1>
+
+
+    <div class="profile-account-information">
+
+        <h2>Account Information</h2>
+
+        <p>
+            <strong>Username:</strong>
+            {{ profile_user.username }}
+        </p>
+
+        <p>
+            <strong>Name:</strong>
+            {{ profile_user.get_full_name }}
+        </p>
+
+        {% if profile_user.email %}
+            <p>
+                <strong>Email:</strong>
+                {{ profile_user.email }}
+            </p>
+        {% endif %}
+
+    </div>
+
+
+    {% if rider %}
+
+        <div class="profile-rider-information">
+
+            <h2>My Rider Profile</h2>
+
+            <p>
+                <strong>Nickname:</strong>
+                {{ rider.nickname }}
+            </p>
+
+            <p>
+                <strong>Motorcycle:</strong>
+                {{ rider.motorcycle_brand }}
+                {{ rider.motorcycle_model }}
+            </p>
+
+            <a href="{% url 'riders:rider-details' rider.pk %}">
+                View Rider Profile
+            </a>
+
+        </div>
+
+
+        <div class="profile-organized-rides">
+
+            <h2>My Organized Rides</h2>
+
+            {% if rider_organized_rides %}
+
+                <ul>
+
+                    {% for ride in rider_organized_rides %}
+
+                        <li>
+                            <a href="{% url 'rides:ride-details' ride.pk %}">
+                                {{ ride.title }}
+                            </a>
+
+                            - {{ ride.status }}
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>You have not organized any rides yet.</p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="profile-joined-rides">
+
+            <h2>My Joined Rides</h2>
+
+            {% if rider_joined_rides %}
+
+                <ul>
+
+                    {% for ride in rider_joined_rides %}
+
+                        <li>
+                            <a href="{% url 'rides:ride-details' ride.pk %}">
+                                {{ ride.title }}
+                            </a>
+
+                            - {{ ride.status }}
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>You have not joined any rides yet.</p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="profile-ride-reviews">
+
+            <h2>My Ride Reviews</h2>
+
+            {% if rider_ride_reviews %}
+
+                <ul>
+
+                    {% for ride_review in rider_ride_reviews %}
+
+                        <li>
+                            <a href="{% url 'rides:ride-review-details' ride_review.pk %}">
+                                {{ ride_review.ride }}
+                            </a>
+
+                            - {{ ride_review.overall_rating }}/10
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>You have not submitted any ride reviews yet.</p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="profile-help-requests">
+
+            <h2>My Help Requests</h2>
+
+            {% if rider_help_requests %}
+
+                <ul>
+
+                    {% for help_request in rider_help_requests %}
+
+                        <li>
+                            <a href="{% url 'assistance:help-request-details' help_request.pk %}">
+                                {{ help_request.title }}
+                            </a>
+
+                            - {{ help_request.status }}
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            {% else %}
+
+                <p>You have not submitted any help requests yet.</p>
+
+            {% endif %}
+
+        </div>
+
+    {% else %}
+
+        <div class="profile-rider-information">
+
+            <h2>Rider Profile</h2>
+
+            <p>You have not created a Rider profile yet.</p>
+
+            {% if perms.riders.add_rider %}
+                <a href="{% url 'riders:rider-create' %}">
+                    Create Rider Profile
+                </a>
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="profile-garages">
+
+        <h2>My Garages</h2>
+
+        {% if user_garages %}
+
+            <ul>
+
+                {% for garage in user_garages %}
+
+                    <li>
+                        <a href="{% url 'services:garage_details' garage.pk %}">
+                            {{ garage.name }}
+                        </a>
+
+                        - {{ garage.city }}
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>You have not created any garages yet.</p>
+
+            {% if perms.services.add_garage %}
+                <a href="{% url 'services:garage_create' %}">
+                    Create Garage
+                </a>
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="profile-garage-reviews">
+
+        <h2>My Garage Reviews</h2>
+
+        {% if user_garage_reviews %}
+
+            <ul>
+
+                {% for garage_review in user_garage_reviews %}
+
+                    <li>
+                        <a href="{% url 'services:garage_review_details' garage_review.pk %}">
+                            {{ garage_review.garage }}
+                        </a>
+
+                        - {{ garage_review.rating }}/5
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>You have not submitted any garage reviews yet.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
