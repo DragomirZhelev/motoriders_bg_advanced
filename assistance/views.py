@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from assistance.models import Rider, HelpRequest
 from assistance.forms import HelpRequestCreateForm, HelpRequestEditForm, HelpRequestDeleteForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from common import choices
 
@@ -30,7 +30,9 @@ class HelpRequestDetailView(DetailView):
     context_object_name = 'help_request'
 
 
-class HelpRequestCreateView(LoginRequiredMixin, CreateView):
+class HelpRequestCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'assistance.add_helprequest'
+
     model = HelpRequest
     form_class = HelpRequestCreateForm
     template_name = 'assistance/help-request-create.html'
@@ -48,7 +50,9 @@ class HelpRequestCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class HelpRequestEditView(LoginRequiredMixin, UpdateView):
+class HelpRequestEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'assistance.change_helprequest'
+
     model = HelpRequest
     form_class = HelpRequestEditForm
     template_name = 'assistance/help-request-edit.html'
@@ -67,7 +71,9 @@ class HelpRequestEditView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('assistance:help-request-details', kwargs={'pk': self.object.pk})
 
 
-class HelpRequestDeleteView(LoginRequiredMixin, DeleteView):
+class HelpRequestDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'assistance.delete_helprequest'
+
     model = HelpRequest
     template_name = 'assistance/help-request-delete.html'
     context_object_name = 'help_request'

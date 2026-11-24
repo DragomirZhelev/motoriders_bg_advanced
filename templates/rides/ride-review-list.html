@@ -6,7 +6,7 @@
 
     <h1>Ride Reviews</h1>
 
-    {% if user.is_authenticated %}
+    {% if perms.rides.add_ridereview %}
 
         <p>
             <button

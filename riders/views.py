@@ -4,9 +4,9 @@ from riders.models import Rider
 from riders.forms import RiderCreateForm, RiderEditForm, RiderDeleteForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect
-
+from django.contrib.auth.models import Group
 
 # Create your views here.
 class RiderListView(ListView):
@@ -34,7 +34,10 @@ class RiderDetailView(DetailView):
     context_object_name = 'rider'
 
 
-class RiderCreateView(LoginRequiredMixin, CreateView):
+class RiderCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+
+    permission_required = 'riders.add_rider'
+
     model = Rider
     form_class = RiderCreateForm
     template_name = 'riders/rider-create.html'
@@ -49,17 +52,27 @@ class RiderCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
 
-        current_rider = Rider.objects.filter(user=self.request.user)
+        current_rider = Rider.objects.filter(user = self.request.user)
         if current_rider.exists():
             form.add_error(None, 'Rider profile already exists, you can not set another profile')
             return self.form_invalid(form)
+
         form.instance.user = self.request.user
-        return super().form_valid(form)
+
+        response = super().form_valid(form)
+
+        riders_group = Group.objects.get(name='Riders')
+
+        self.request.user.groups.add(riders_group)
+
+        return response
 
 
 
 
-class RiderDeleteView( LoginRequiredMixin, DeleteView):
+class RiderDeleteView( LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'riders.delete_rider'
+
     model = Rider
     template_name = 'riders/rider-delete.html'
     success_url = reverse_lazy('riders:rider-list')
@@ -78,7 +91,9 @@ class RiderDeleteView( LoginRequiredMixin, DeleteView):
 
         return context
 
-class RiderEditView(LoginRequiredMixin, UpdateView):
+class RiderEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'riders.change_rider'
+
     model = Rider
     form_class = RiderEditForm
     template_name = 'riders/rider-edit.html'

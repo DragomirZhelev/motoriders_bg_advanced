@@ -22,7 +22,7 @@ class AppUserCreationForm(UserCreationForm):
             'username': 'Your username must be unique',
             'first_name': 'Names must contain only letters',
             'last_name': 'Names must contain only letters',
-            'email': 'Email is optional. If email is provide then it must be unique',
+            'email': 'Email is optional. If email is provided then it must be unique',
         }
 
         widgets = {

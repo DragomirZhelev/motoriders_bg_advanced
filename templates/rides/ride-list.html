@@ -6,7 +6,7 @@
 
         <h1>All Rides</h1>
 
-        {% if user.is_authenticated %}
+        {% if perms.rides.add_ride %}
             <p>
                 <button
                     type="button"

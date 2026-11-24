@@ -1,5 +1,3 @@
-from typing import cast
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models

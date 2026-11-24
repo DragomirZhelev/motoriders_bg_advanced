@@ -27,7 +27,7 @@ class GarageBaseForm(forms.ModelForm):
         help_texts = {
             'name': 'Provide the name of the garage',
             'description': 'Provide a short description of the garage',
-            'city': 'Provide the city location of the garage',
+            'city': 'Provide a city for the location of the garage',
             'address': 'Provide the address of the garage',
             'phone_number': 'Provide a phone number for contact',
             'email': 'Provide an email address for contact',
@@ -38,7 +38,7 @@ class GarageBaseForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Enter the name of the garage'}),
             'description': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Provide a short description of the garage'}),
-            'city': forms.TextInput(attrs={'placeholder': 'Provide the city location of the garage'}),
+            'city': forms.Select(),
             'address': forms.TextInput(attrs={'placeholder': 'Provide the address of the garage'}),
             'phone_number': forms.TextInput(attrs={'placeholder': 'Provide a phone number for contact'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Provide an email address for contact'}),
@@ -60,8 +60,7 @@ class GarageBaseForm(forms.ModelForm):
 
             'city':{
                 'required': 'Please, provide a city for the garage location',
-                'min_length': 'Name of the city shall be at least 3 characters',
-                'max_length': 'Name of the city shall not be more than 100 characters',
+                'invalid_choice':'Please, select a valid city',
             },
 
             'address':{

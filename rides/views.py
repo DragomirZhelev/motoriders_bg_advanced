@@ -4,16 +4,14 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
 from common import choices
 from riders.models import Rider
-# Create your views here.
 from rides.models import Ride, RideReview
 from rides.forms import RideCreateForm, RideEditForm, RideDeleteForm, RideReviewCreateForm, RideReviewEditForm, RideReviewDeleteForm, JoinRideForm
 from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+# Create your views here.
 
 
 class RideListView(ListView):
@@ -91,7 +89,9 @@ class RideDetailView(DetailView):
 
 
 
-class RideCreateView(LoginRequiredMixin, CreateView):
+class RideCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'rides.add_ride'
+
     model = Ride
     form_class = RideCreateForm
     template_name = 'rides/ride-create.html'
@@ -112,7 +112,9 @@ class RideCreateView(LoginRequiredMixin, CreateView):
 
 
 
-class RideEditView(LoginRequiredMixin, UpdateView):
+class RideEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    permission_required = 'rides.change_ride'
+
     model = Ride
     form_class = RideEditForm
     template_name = 'rides/ride-edit.html'
@@ -121,7 +123,7 @@ class RideEditView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        queryset = Ride.objects.filter(status = 'Planned')
+        queryset = queryset.filter(status = choices.TripStatusChoices.PLANNED)
 
         queryset = queryset.filter(ride_organizer__user = self.request.user)
 
@@ -132,7 +134,9 @@ class RideEditView(LoginRequiredMixin, UpdateView):
 
 
 
-class RideDeleteView(LoginRequiredMixin, DeleteView):
+class RideDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'rides.delete_ride'
+
     model = Ride
     template_name = 'rides/ride-delete.html'
     success_url = reverse_lazy('rides:ride-list')
@@ -181,7 +185,9 @@ class RideReviewListView(ListView):
 
 
 
-class RideReviewCreateView(LoginRequiredMixin, CreateView):
+class RideReviewCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    permission_required = 'rides.add_ridereview'
+
     model = RideReview
     form_class = RideReviewCreateForm
     template_name = 'rides/ride-review-create.html'
@@ -213,7 +219,9 @@ class RideReviewCreateView(LoginRequiredMixin, CreateView):
 
 
 
-class RideReviewEditView( LoginRequiredMixin, UpdateView):
+class RideReviewEditView(LoginRequiredMixin,  PermissionRequiredMixin, UpdateView):
+    permission_required = 'rides.change_ridereview'
+
     model = RideReview
     form_class = RideReviewEditForm
     template_name = 'rides/ride-review-edit.html'
@@ -229,7 +237,9 @@ class RideReviewEditView( LoginRequiredMixin, UpdateView):
         return reverse_lazy('rides:ride-review-details', kwargs={'pk': self.object.pk})
 
 
-class RideReviewDeleteView(LoginRequiredMixin, DeleteView):
+class RideReviewDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    permission_required = 'rides.delete_ridereview'
+
     model = RideReview
     template_name = 'rides/ride-review-delete.html'
     context_object_name = 'ride_review'
@@ -248,6 +258,7 @@ class RideReviewDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 @login_required
+@permission_required('rides.change_ride', raise_exception=True)
 def join_ride(request, pk):
     ride = get_object_or_404(Ride, pk=pk)
 
@@ -268,9 +279,9 @@ def join_ride(request, pk):
 
             elif rider == ride.ride_organizer:
                 # raise ValidationError('The organizer of the ride can not join the participants list')
-                form.add_error('rider', 'The organizer of the ride shall not join as participant')
+                form.add_error(None, 'The organizer of the ride shall not join as participant')
             elif rider in ride.participants.all():
-                form.add_error('rider', 'This rider is already part of the participants list')
+                form.add_error(None, 'This rider is already part of the participants list')
             else:
                 ride.participants.add(rider)
 
@@ -284,6 +295,7 @@ def join_ride(request, pk):
     return render(request, 'rides/ride-join.html', context)
 
 @login_required
+@permission_required('rides.change_ride', raise_exception=True)
 @require_POST
 def leave_ride(request, pk):
     ride = get_object_or_404(Ride, pk=pk)

@@ -9,25 +9,40 @@
     <div class="card model-form-card bg-dark text-light border-secondary shadow-lg">
 
         <div class="card-header px-4 py-3">
-            <h1 class="h3 mb-0">Create Garage</h1>
+
+            <h1 class="h3 mb-0">
+                Create Garage
+            </h1>
 
             <p class="text-secondary mb-0 mt-2">
                 Add your garage information and select the services offered.
             </p>
+
         </div>
 
         <div class="card-body p-4">
 
             <form method="post">
+
                 {% csrf_token %}
 
                 {{ form.as_p }}
 
                 <div class="d-flex flex-wrap gap-2 pt-2">
 
-                    <button type="submit" class="btn btn-danger">
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
                         Create Garage
                     </button>
+
+                    <a
+                        href="{% url 'services:garage_list' %}"
+                        class="btn btn-outline-light"
+                    >
+                        Cancel
+                    </a>
 
                 </div>
 

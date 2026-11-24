@@ -6,7 +6,7 @@
 
     <h1>Garage Reviews</h1>
 
-    {% if user.is_authenticated %}
+    {% if perms.services.add_garagereview %}
 
         <p>
             <a
@@ -18,6 +18,7 @@
         </p>
 
     {% endif %}
+
 
     <form method="get" class="mb-4">
 
@@ -50,6 +51,7 @@
 
     </form>
 
+
     {% if garage_reviews %}
 
         {% for garage_review in garage_reviews %}
@@ -73,9 +75,11 @@
                     </p>
 
                     {% if garage_review.comment %}
+
                         <p>
                             {{ garage_review.comment }}
                         </p>
+
                     {% endif %}
 
                     <a

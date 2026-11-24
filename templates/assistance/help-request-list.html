@@ -6,7 +6,7 @@
 
         <h1>Help Requests</h1>
 
-        {% if user.is_authenticated %}
+        {% if perms.assistance.add_helprequest %}
 
             <p>
                 <button
