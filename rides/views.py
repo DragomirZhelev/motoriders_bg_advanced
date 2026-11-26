@@ -29,6 +29,7 @@ class RideListView(ListView):
         if search_query:
             queryset = queryset.filter(
                 Q(title__icontains=search_query) |
+                Q(city__icontains=search_query) |
                 Q(ride_organizer__user__first_name__icontains=search_query) |
                 Q(ride_organizer__user__last_name__icontains=search_query) |
                 Q(ride_organizer__nickname__icontains=search_query) |
